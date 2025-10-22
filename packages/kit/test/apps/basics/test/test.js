@@ -1806,6 +1806,7 @@ test.describe('remote functions', () => {
 			await page.getByText('resolve deferreds').click();
 			await expect(page.getByText('enhanced.pending:')).toHaveText('enhanced.pending: 0');
 			await expect(page.getByText('await get_message():')).toHaveText('await get_message(): hello');
+			await expect(page.getByText('enhanced.type:')).toHaveText(/enhanced.type: (result|issues|redirect|error)/);
 
 			// enhanced submission should not clear the input; the developer must do that at the appropriate time
 			await expect(page.locator('[data-enhanced] input')).toHaveValue('hello');

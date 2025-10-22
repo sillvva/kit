@@ -10,6 +10,8 @@
 
 	const scoped = set_message.for('scoped');
 	const enhanced = set_message.for('enhanced');
+
+	let result_type = $state('');
 </script>
 
 <p>message.current: {message.current}</p>
@@ -56,7 +58,8 @@
 <form
 	data-enhanced
 	{...enhanced.enhance(async ({ data, submit }) => {
-		await submit().updates(get_message().withOverride(() => data.message + ' (override)'));
+		const response = await submit().updates(get_message().withOverride(() => data.message + ' (override)'));
+		result_type = response.type;
 	})}
 >
 	{#if enhanced.fields.message.issues()}
@@ -70,6 +73,7 @@
 <p>enhanced.input.message: {enhanced.fields.message.value()}</p>
 <p>enhanced.pending: {enhanced.pending}</p>
 <p>enhanced.result: {enhanced.result}</p>
+<p>enhanced.type: {result_type}</p>
 
 <hr />
 
