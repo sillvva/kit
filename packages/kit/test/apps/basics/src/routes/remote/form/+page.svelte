@@ -58,7 +58,9 @@
 <form
 	data-enhanced
 	{...enhanced.enhance(async ({ data, submit }) => {
-		const response = await submit().updates(get_message().withOverride(() => data.message + ' (override)'));
+		const response = await submit().updates(
+			get_message().withOverride(() => data.message + ' (override)')
+		);
 		result_type = response.type;
 	})}
 >
