@@ -17,7 +17,7 @@ import {
 	RequestOptions,
 	RouteSegment
 } from '../types/private.js';
-import { BuildData, SSRNodeLoader, SSRRoute, ValidatedConfig } from 'types';
+import { BuildData, RemoteFunctionResponse, SSRNodeLoader, SSRRoute, ValidatedConfig } from 'types';
 import { SvelteConfig } from '@sveltejs/vite-plugin-svelte';
 import { StandardSchemaV1 } from '@standard-schema/spec';
 import {
@@ -1965,6 +1965,10 @@ export interface RemoteFormIssue {
 	message: string;
 }
 
+type RemoteFormSubmitResponse = {
+	type: RemoteFunctionResponse['type'] | 'issues';
+};
+
 // If the schema specifies `id` as a string or number, ensure that `for(...)`
 // only accepts that type. Otherwise, accept `string | number`
 type ExtractId<Input> = Input extends { id: infer Id }
@@ -2017,8 +2021,10 @@ export type RemoteForm<Input extends RemoteFormInput | void, Output> = {
 		callback: (opts: {
 			form: HTMLFormElement;
 			data: Input;
-			submit: () => Promise<void> & {
-				updates: (...queries: Array<RemoteQuery<any> | RemoteQueryOverride>) => Promise<void>;
+			submit: () => Promise<RemoteFormSubmitResponse> & {
+				updates: (
+					...queries: Array<RemoteQuery<any> | RemoteQueryOverride>
+				) => Promise<RemoteFormSubmitResponse>;
 			};
 		}) => void | Promise<void>
 	): {
@@ -2069,8 +2075,10 @@ export type RemoteForm<Input extends RemoteFormInput | void, Output> = {
 			callback: (opts: {
 				form: HTMLFormElement;
 				data: Input;
-				submit: () => Promise<void> & {
-					updates: (...queries: Array<RemoteQuery<any> | RemoteQueryOverride>) => Promise<void>;
+				submit: () => Promise<RemoteFormSubmitResponse> & {
+					updates: (
+						...queries: Array<RemoteQuery<any> | RemoteQueryOverride>
+					) => Promise<RemoteFormSubmitResponse>;
 				};
 			}) => void | Promise<void>
 		): {

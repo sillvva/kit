@@ -179,6 +179,8 @@ export function form(id) {
 
 			/** @type {Promise<any> & { updates: (...args: any[]) => any }} */
 			const promise = (async () => {
+				const output = { type: /** @type {RemoteFunctionResponse['type'] | 'issues'} */ ('') };
+
 				try {
 					await Promise.resolve();
 
@@ -202,11 +204,13 @@ export function form(id) {
 					}
 
 					const form_result = /** @type { RemoteFunctionResponse} */ (await response.json());
+					output.type = form_result.type;
 
 					if (form_result.type === 'result') {
 						({ issues: raw_issues = [], result } = devalue.parse(form_result.result, app.decoders));
 
 						if (issues.$) {
+							output.type = 'issues';
 							release_overrides(updates);
 						} else {
 							if (form_result.refreshes) {
@@ -243,6 +247,8 @@ export function form(id) {
 						}
 					});
 				}
+
+				return output;
 			})();
 
 			promise.updates = (...args) => {

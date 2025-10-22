@@ -1941,6 +1941,10 @@ declare module '@sveltejs/kit' {
 		message: string;
 	}
 
+	type RemoteFormSubmitResponse = {
+		type: RemoteFunctionResponse['type'] | 'issues';
+	};
+
 	// If the schema specifies `id` as a string or number, ensure that `for(...)`
 	// only accepts that type. Otherwise, accept `string | number`
 	type ExtractId<Input> = Input extends { id: infer Id }
@@ -1993,8 +1997,10 @@ declare module '@sveltejs/kit' {
 			callback: (opts: {
 				form: HTMLFormElement;
 				data: Input;
-				submit: () => Promise<void> & {
-					updates: (...queries: Array<RemoteQuery<any> | RemoteQueryOverride>) => Promise<void>;
+				submit: () => Promise<RemoteFormSubmitResponse> & {
+					updates: (
+						...queries: Array<RemoteQuery<any> | RemoteQueryOverride>
+					) => Promise<RemoteFormSubmitResponse>;
 				};
 			}) => void | Promise<void>
 		): {
@@ -2045,8 +2051,10 @@ declare module '@sveltejs/kit' {
 				callback: (opts: {
 					form: HTMLFormElement;
 					data: Input;
-					submit: () => Promise<void> & {
-						updates: (...queries: Array<RemoteQuery<any> | RemoteQueryOverride>) => Promise<void>;
+					submit: () => Promise<RemoteFormSubmitResponse> & {
+						updates: (
+							...queries: Array<RemoteQuery<any> | RemoteQueryOverride>
+						) => Promise<RemoteFormSubmitResponse>;
 					};
 				}) => void | Promise<void>
 			): {
@@ -2494,6 +2502,36 @@ declare module '@sveltejs/kit' {
 		endpoint: {
 			file: string;
 		} | null;
+	}
+
+	type ServerRedirectNode = {
+		type: 'redirect';
+		location: string;
+	};
+
+	type RemoteFunctionResponse =
+		| (ServerRedirectNode & {
+				/** devalue'd Record<string, any> */
+				refreshes?: string;
+		  })
+		| ServerErrorNode
+		| {
+				type: 'result';
+				result: string;
+				/** devalue'd Record<string, any> */
+				refreshes: string | undefined;
+		  };
+
+	/**
+	 * Signals that the server `load` function failed.
+	 */
+	interface ServerErrorNode {
+		type: 'error';
+		error: App.Error;
+		/**
+		 * Only set for HttpErrors.
+		 */
+		status?: number;
 	}
 
 	interface SSRComponent {
